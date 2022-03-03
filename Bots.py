@@ -109,29 +109,8 @@ class Arborist(Immediate):
         if isinstance(subtree[0], list):
             return ''
         if player == turn:
-            bestmove = random.choice(list(subtree[0].keys()))
-            bestresult = opponent
-            for move, branch in subtree[0].items():
-                valueofbranch = self.evaluate(branch, player, opponent)
-                if valueofbranch == '':
-                    if bestresult == opponent:
-                        bestresult = ''
-                        bestmove = move
-                elif valueofbranch == player:
-                    bestresult = player
-                    bestmove = move
-            self.bestmove[player][subtree[1]] = bestmove
-            return bestresult
-        else:
-            bestresult = player
-            for move, branch in subtree[0].items():
-                valueofbranch = self.evaluate(branch, player, player)
-                if valueofbranch == opponent:
-                    bestresult = opponent
-                elif valueofbranch == '':
-                    if bestresult == player:
-                        bestresult = ''
-            return bestresult
+            return self.playerturn(opponent, player, subtree)
+        return self.opponentturn(opponent, player, subtree)
 
     def branch(self, subtree, depth=0, maxDepth=8):
         for crossindex in Arborist.RANGES[depth]:
@@ -157,6 +136,32 @@ class Arborist(Immediate):
             return True, position
         self.opensquares[depth+1] = self.opensquares[depth][:rank] + self.opensquares[depth][rank+1:]
         return False, position
+
+    def opponentturn(self, opponent, player, subtree):
+        bestresult = player
+        for move, branch in subtree[0].items():
+            valueofbranch = self.evaluate(branch, player, player)
+            if valueofbranch == opponent:
+                bestresult = opponent
+            elif valueofbranch == '':
+                if bestresult == player:
+                    bestresult = ''
+        return bestresult
+
+    def playerturn(self, opponent, player, subtree):
+        bestmove = random.choice(list(subtree[0].keys()))
+        bestresult = opponent
+        for move, branch in subtree[0].items():
+            valueofbranch = self.evaluate(branch, player, opponent)
+            if valueofbranch == '':
+                if bestresult == opponent:
+                    bestresult = ''
+                    bestmove = move
+            elif valueofbranch == player:
+                bestresult = player
+                bestmove = move
+        self.bestmove[player][subtree[1]] = bestmove
+        return bestresult
 
     def __call__(self, board, player):
         return self.bestmove[player][board]
