@@ -1,4 +1,4 @@
-Plays tic-tac-toe on a three-by-four board
+Plays tic-tac-toe on a three-by-three board
 
 
 Run a new game with:
